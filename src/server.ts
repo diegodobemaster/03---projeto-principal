@@ -1,26 +1,11 @@
-import fastify from 'fastify'
+import { app } from './app'
+import { env } from './env'
 
-import { z } from 'zod'
-import { prisma } from './lib/prisma'
-
-export const app = fastify()
-
-app.post('/users', async (request, reply) => {
-  const registerBodySchema = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    password: z.string().min(6),
+app
+  .listen({
+    host: '0.0.0.0',
+    port: env.PORT,
   })
-
-  const { name, email, password } = registerBodySchema.parse(request.body)
-
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      password_hash: password as string,
-    },
+  .then(() => {
+    console.log('🚀 HTTP Server Running')
   })
-
-  return reply.status(201).send()
-})
